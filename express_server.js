@@ -17,11 +17,13 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// Route for all the urls in database
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
+// Route for individual url, showing short and long url
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
