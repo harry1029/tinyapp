@@ -31,8 +31,9 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
   const shortURL = generateRandomString(); // Generate random short URL for our new URL
-  urlDatabase[shortURL] = req.body['longURL']; // Add new url to the database
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  urlDatabase[shortURL] = req.body['longURL']; // Add new URL to the database
+
+  res.redirect(`/urls/${shortURL}`); // Redirect to newly generated URL
 });
 
 // Route for urls_new.ejs *Must be placed before any /:id routes
