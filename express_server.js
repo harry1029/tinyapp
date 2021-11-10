@@ -21,14 +21,17 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// Route for all the urls in database
+// Route to list all the urls in database
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
+// Route for POST request of urls_new form
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
+  const shortURL = generateRandomString(); // Generate random short URL for our new URL
+  urlDatabase[shortURL] = req.body['longURL']; // Add new url to the database
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 
