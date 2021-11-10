@@ -53,5 +53,13 @@ app.listen(PORT, () => {
 });
 
 function generateRandomString() {
-
-}
+  let result = '';
+  // A string of all possible alphabets and numbers to choose from for our random string
+  const char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+  for (let i = 0; i < 6; i++) {
+    // Generate a random index to pick a string from our list
+    const index = Math.floor(Math.random() * char.length);
+    result += char[index];
+  }
+  return result;
+};
