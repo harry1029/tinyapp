@@ -75,11 +75,13 @@ app.get("/register", (req, res) => {
 
 // Route to list all the urls in database
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies['user_id']] };
+  const templateVars = { user: users[req.cookies['user_id']] };
   // Check if user is logged in
   if (!checkLogin(req)) {
     res.render("urls_index_noId", templateVars);
   } else {
+    const userURL = urlsForUser(checkLogin(req).id);
+    templateVars['urls'] = userURL;
     console.log(templateVars);
     res.render("urls_index", templateVars);
   }
@@ -93,6 +95,7 @@ app.post("/urls", (req, res) => {
   }
   const shortURL = generateRandomString(); // Generate random short URL for our new URL
   urlDatabase[shortURL] = { longURL: req.body['longURL'], userID: req.cookies['user_id'] }; // Add new URL to the database for specified user
+  console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`); // Redirect to newly generated URL
 });
 
@@ -123,13 +126,13 @@ app.post("/login", (req, res) => {
   // Check if email exists
   if (checkEmail(req.body['email']) === undefined) {
     res.status(403);
-    res.send("Email does not exist!")
+    return res.send("Email does not exist!")
   }
   const id = checkEmail(req.body['email'], req.body['password'])
   // Check if password is correct
   if (id === undefined) {
     res.status(403);
-    res.send("Password is incorrect!");
+    return res.send("Password is incorrect!");
   }
   
   res.cookie('user_id', id); // Set cookie 'user_id' with entered value
@@ -225,5 +228,12 @@ function checkLogin(req) {
 
 // Return URLs given the user_id
 function urlsForUser(id) {
-
+  let result = Object.assign({}, urlDatabase);
+  for (let url in result) {
+    console.log(url)
+    if (result[url]['userID'] !== id) {
+      delete result[url];
+    }
+  }
+  return result;
 };
