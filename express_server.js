@@ -87,10 +87,19 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("."); // Redirects back to main page urls_index
 });
 
-// Login button
+// Login page
 app.post("/login", (req, res) => {
-  // NEED TO CHECK IF USER IS WITHIN DATABASE
-  res.cookie('user_id', req.body['user_id']); // Set cookie 'user_id' with entered value
+  if (checkEmail(req.body['email']) === undefined) {
+    res.status(403);
+    res.send("Email does not exist!")
+  }
+  const id = checkEmail(req.body['email'], req.body['password'])
+  if (id === undefined) {
+    res.status(403);
+    res.send("Password is incorrect!");
+  }
+  
+  res.cookie('user_id', id); // Set cookie 'user_id' with entered value
   res.redirect('/urls');
 });
 
@@ -108,9 +117,9 @@ app.post("/register", (req, res) => {
     res.send('Invalid Email or password!');
   }
   // Check if email already exist
-  if (checkEmail(req.body['email'])) {
+  if (checkEmail(req.body['email']) !== undefined) {
     res.status(400);
-    res.send('Email already exist within database!');
+    res.send('Email is already used!');
   }
   const randomID = generateRandomString();
   users[randomID] = { id: randomID, email: req.body['email'], password: req.body['password'] }; // Add new user to object
@@ -152,11 +161,21 @@ function generateRandomString() {
   return result;
 };
 
-function checkEmail(email) {
-  for (const id in users) {
-    if (users[id]['email'] === email) {
-      return true;
+function checkEmail(email, password) {
+  let result = undefined;
+  if (password === undefined) {
+    for (const id in users) {
+      if (users[id]['email'] === email) {
+        return result = id;
+      }
+    }
+  } else {
+    for (const id in users) {
+      if (users[id]['email'] === email && users[id]['password'] === password) {
+        return result = id;
+      }
     }
   }
-  return false
+
+  return result;
 };
