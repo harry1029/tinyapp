@@ -19,7 +19,7 @@
       <div class="card-body">
         <h2 class="card-title">Edit</h2>
         <!-- Form for editing URL with a submit button -->
-        <form class="form-inline" action="/urls" method="POST" style="justify-content: center;">
+        <form class="form-inline" action="/urls/<%= shortURL %>" method="POST" style="justify-content: center;">
           <div class="form-group mb-2">
             <label for="longURL">New URL:</label>
             <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">

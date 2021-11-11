@@ -47,6 +47,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 })
 
+// Route for editing long url in urls_show
+app.post("/urls/:id", (req, res) => {
+  urlDatabase[req.params.id] = req.body['longURL'];
+  res.redirect("."); // Redirects back to main page urls_index
+});
+
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]; // Fetch short URL from route parameter, then access database to fetch long URL with short URL key
   res.redirect(longURL);
