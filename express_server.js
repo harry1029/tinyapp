@@ -17,6 +17,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// Temporary users database
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -28,12 +42,6 @@ app.get("/urls.json", (req, res) => {
 // Route to list all the urls in database
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
-
-  /*
-  if (req.cookies["username"]) {
-    templateVars[username] = req.cookies["username"];
-  }
-  */
 
   res.render("urls_index", templateVars);
 });
@@ -71,13 +79,24 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("."); // Redirects back to main page urls_index
 });
 
+// Login button
 app.post("/login", (req, res) => {
   res.cookie('username', req.body['username']); // Set cookie 'username' with entered value
   res.redirect('/urls');
 });
 
+// Logout button
 app.post("/logout", (req, res) => {
   res.clearCookie('username'); // Clears username cookie
+  res.redirect('/urls');
+});
+
+// Register button adds new user object
+app.post("/register", (req, res) => {
+  const randomID = generateRandomString();
+  users[randomID] = { id: randomID, email: req.body['email'], password: req.body['password'] }; // Add new user to object
+  res.cookie('user_id', randomID);
+  console.log(users);
   res.redirect('/urls');
 });
 
