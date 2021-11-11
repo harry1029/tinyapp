@@ -10,6 +10,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // Add cookieparser middleware for use
 const cookieParser = require('cookie-parser');
+const e = require("express");
 app.use(cookieParser());
 
 const urlDatabase = {
@@ -41,14 +42,22 @@ app.get("/urls.json", (req, res) => {
 
 // Route for log in endpoint
 app.get("/login", (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']] };
-  res.render("urls_login", templateVars);
+  if (users[req.cookies['user_id']] === undefined) {
+    const templateVars = { user: users[req.cookies['user_id']] };
+    res.render("urls_login", templateVars);
+  } else {
+    res.redirect('/urls');        // Redirect to /urls if user is already logged in
+  }
 });
 
 // Route for register endpoint
 app.get("/register", (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']] };
-  res.render("urls_register", templateVars);
+  if (users[req.cookies['user_id']] === undefined) {
+    const templateVars = { user: users[req.cookies['user_id']] };
+    res.render("urls_register", templateVars);
+  } else {
+    res.redirect('/urls');        // Redirect to /urls if user is already logged in
+  }
 });
 
 // Route to list all the urls in database
