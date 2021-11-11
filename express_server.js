@@ -10,7 +10,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // Add cookieparser middleware for use
 const cookieParser = require('cookie-parser');
-const e = require("express");
 app.use(cookieParser());
 
 const urlDatabase = {
@@ -70,19 +69,24 @@ app.get("/urls", (req, res) => {
 
 // Route for POST request of urls_new form
 app.post("/urls", (req, res) => {
-  // console.log(req.body);  // Log the POST request body to the console
+  if (users[req.cookies['user_id']] === undefined) {
+    res.status(401);
+    return res.send("Access denied!");
+  }
   const shortURL = generateRandomString(); // Generate random short URL for our new URL
   urlDatabase[shortURL] = req.body['longURL']; // Add new URL to the database
-
   res.redirect(`/urls/${shortURL}`); // Redirect to newly generated URL
 });
 
 // Route for urls_new.ejs *Must be placed before any /:id routes
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']] };
-  res.render("urls_new", templateVars);
+  if (users[req.cookies['user_id']] === undefined) {
+    res.redirect("/login");
+  } else {
+    const templateVars = { user: users[req.cookies['user_id']] };
+    res.render("urls_new", templateVars);
+  }
 });
-
 
 // Route for delete button
 app.post("/urls/:shortURL/delete", (req, res) => {
