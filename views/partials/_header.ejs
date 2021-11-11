@@ -19,10 +19,14 @@
         </div>
       </form>
     <% } else { %>
-    <!-- Login textbar and button -->
-    <form class="form-inline" method="POST" action="/login">
+    <!-- Button link to login and register page -->
+    <form class="form-inline" method="GET" action="/register" style="margin-right: 10px;">
       <div class="form-group mb-2">
-        <input class="form-control" type="text" name="user_id" placeholder="User ID" style="width: 300px; margin: 1em">
+        <button type="submit" class="btn btn-primary">Register</button>
+      </div>
+    </form>
+    <form class="form-inline" method="GET" action="/login">
+      <div class="form-group mb-2">
         <button type="submit" class="btn btn-primary">Login</button>
       </div>
     </form>

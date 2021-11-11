@@ -41,7 +41,8 @@ app.get("/urls.json", (req, res) => {
 
 // Route for log in endpoint
 app.get("/login", (req, res) => {
-  res.render("urls_login");
+  const templateVars = { user: users[req.cookies['user_id']] };
+  res.render("urls_login", templateVars);
 });
 
 // Route for register endpoint
