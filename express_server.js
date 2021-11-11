@@ -8,6 +8,8 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
+const cookieParser = require('cookie-parser');
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -52,6 +54,11 @@ app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = req.body['longURL'];
   res.redirect("."); // Redirects back to main page urls_index
 });
+
+app.post("/login", (req, res) => {
+  res.cookie('username', req.body['username']); // Set cookie 'username' with entered value
+  res.redirect('/urls');
+})
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]; // Fetch short URL from route parameter, then access database to fetch long URL with short URL key
