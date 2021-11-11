@@ -115,11 +115,13 @@ app.post("/urls/:id", (req, res) => {
 
 // Login page
 app.post("/login", (req, res) => {
+  // Check if email exists
   if (checkEmail(req.body['email']) === undefined) {
     res.status(403);
     res.send("Email does not exist!")
   }
   const id = checkEmail(req.body['email'], req.body['password'])
+  // Check if password is correct
   if (id === undefined) {
     res.status(403);
     res.send("Password is incorrect!");
@@ -161,6 +163,11 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Route for individual url, showing short and long url
 app.get("/urls/:shortURL", (req, res) => {
+  // Check for valid URL
+  if (!urlDatabase[req.params.shortURL]) {
+    res.status(400);
+    return res.send('Invalid URL!');
+  }
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user: users[req.cookies['user_id']] };
   res.render("urls_show", templateVars);
 });
