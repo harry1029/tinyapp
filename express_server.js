@@ -49,7 +49,8 @@ app.post("/urls", (req, res) => {
 
 // Route for urls_new.ejs *Must be placed before any /:id routes
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { username: req.cookies["username"] };
+  res.render("urls_new", templateVars);
 });
 
 // Route for delete button
@@ -76,7 +77,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Route for individual url, showing short and long url
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
   res.render("urls_show", templateVars);
 });
 
