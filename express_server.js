@@ -95,6 +95,16 @@ app.post("/logout", (req, res) => {
 
 // Register button adds new user object
 app.post("/register", (req, res) => {
+  // Check if empty string is passed
+  if (req.body['email'] === '' || !req.body['password'] === '') {
+    res.status(400);
+    res.send('Invalid Email or password!');
+  }
+  // Check if email already exist
+  if (checkEmail(req.body['email'])) {
+    res.status(400);
+    res.send('Email already exist within database!');
+  }
   const randomID = generateRandomString();
   users[randomID] = { id: randomID, email: req.body['email'], password: req.body['password'] }; // Add new user to object
   res.cookie('user_id', randomID);
@@ -133,4 +143,13 @@ function generateRandomString() {
     result += char[index];
   }
   return result;
+};
+
+function checkEmail(email) {
+  for (const id in users) {
+    if (users[id]['email'] === email) {
+      return true;
+    }
+  }
+  return false
 };
