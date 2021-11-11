@@ -10,6 +10,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // Add cookieparser middleware for use
 const cookieParser = require('cookie-parser');
+const e = require("express");
 app.use(cookieParser());
 
 /*
@@ -54,7 +55,7 @@ app.get("/urls.json", (req, res) => {
 
 // Route for log in endpoint
 app.get("/login", (req, res) => {
-  if (users[req.cookies['user_id']] === undefined) {
+  if (!checkLogin(req)) {
     const templateVars = { user: users[req.cookies['user_id']] };
     res.render("urls_login", templateVars);
   } else {
@@ -64,7 +65,7 @@ app.get("/login", (req, res) => {
 
 // Route for register endpoint
 app.get("/register", (req, res) => {
-  if (users[req.cookies['user_id']] === undefined) {
+  if (!checkLogin(req)) {
     const templateVars = { user: users[req.cookies['user_id']] };
     res.render("urls_register", templateVars);
   } else {
@@ -75,14 +76,18 @@ app.get("/register", (req, res) => {
 // Route to list all the urls in database
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[req.cookies['user_id']] };
-  console.log(templateVars);
-
-  res.render("urls_index", templateVars);
+  // Check if user is logged in
+  if (!checkLogin(req)) {
+    res.render("urls_index_noId", templateVars);
+  } else {
+    console.log(templateVars);
+    res.render("urls_index", templateVars);
+  }
 });
 
 // Route for POST request of urls_new form
 app.post("/urls", (req, res) => {
-  if (users[req.cookies['user_id']] === undefined) {
+  if (!checkLogin(req)) {
     res.status(401);
     return res.send("Access denied!");
   }
@@ -93,7 +98,7 @@ app.post("/urls", (req, res) => {
 
 // Route for urls_new.ejs *Must be placed before any /:id routes
 app.get("/urls/new", (req, res) => {
-  if (users[req.cookies['user_id']] === undefined) {
+  if (!checkLogin(req)) {
     res.redirect("/login");
   } else {
     const templateVars = { user: users[req.cookies['user_id']] };
@@ -211,4 +216,14 @@ function checkEmail(email, password) {
   }
 
   return result;
+};
+
+// Helper function returns true if logged in
+function checkLogin(req) {
+  return users[req.cookies['user_id']];
+};
+
+// Return URLs given the user_id
+function urlsForUser(id) {
+
 };
