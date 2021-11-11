@@ -68,7 +68,12 @@ app.post("/urls/:id", (req, res) => {
 app.post("/login", (req, res) => {
   res.cookie('username', req.body['username']); // Set cookie 'username' with entered value
   res.redirect('/urls');
-})
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('username'); // Clears username cookie
+  res.redirect('/urls');
+});
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]; // Fetch short URL from route parameter, then access database to fetch long URL with short URL key
