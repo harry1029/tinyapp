@@ -11,10 +11,10 @@
       </div>
     </div>
     <!-- Sign in status and logout button -->
-    <% if (username) { %>
+    <% if (user) { %>
       <form class="form-inline" method="POST" action="/logout">
         <div class="form-group mb-2">
-          <p style="width: 250px; margin: 1em; font-weight: bold;">Logged in As: <%= username %></p>
+          <p style="width: 300px; margin: 1em; font-weight: bold;">Logged in As: <%= user['email'] %></p>
           <button type="submit" class="btn btn-primary">Logout</button>
         </div>
       </form>
@@ -22,7 +22,7 @@
     <!-- Login textbar and button -->
     <form class="form-inline" method="POST" action="/login">
       <div class="form-group mb-2">
-        <input class="form-control" type="text" name="username" placeholder="Username" style="width: 300px; margin: 1em">
+        <input class="form-control" type="text" name="user_id" placeholder="User ID" style="width: 300px; margin: 1em">
         <button type="submit" class="btn btn-primary">Login</button>
       </div>
     </form>

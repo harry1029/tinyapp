@@ -41,7 +41,8 @@ app.get("/urls.json", (req, res) => {
 
 // Route to list all the urls in database
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  const templateVars = { urls: urlDatabase, user: users[req.cookies['user_id']] };
+  console.log(templateVars);
 
   res.render("urls_index", templateVars);
 });
@@ -57,13 +58,13 @@ app.post("/urls", (req, res) => {
 
 // Route for urls_new.ejs *Must be placed before any /:id routes
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { user: users[req.cookies['user_id']] };
   res.render("urls_new", templateVars);
 });
 
 // Route for register endpoint
 app.get("/urls/register", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { user: users[req.cookies['user_id']] };
   res.render("urls_register", templateVars);
 })
 
@@ -81,13 +82,14 @@ app.post("/urls/:id", (req, res) => {
 
 // Login button
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body['username']); // Set cookie 'username' with entered value
+  // NEED TO CHECK IF USER IS WITHIN DATABASE
+  res.cookie('user_id', req.body['user_id']); // Set cookie 'user_id' with entered value
   res.redirect('/urls');
 });
 
 // Logout button
 app.post("/logout", (req, res) => {
-  res.clearCookie('username'); // Clears username cookie
+  res.clearCookie('user_id'); // Clears user_id cookie
   res.redirect('/urls');
 });
 
@@ -107,7 +109,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Route for individual url, showing short and long url
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies['user_id']] };
   res.render("urls_show", templateVars);
 });
 
