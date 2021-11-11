@@ -29,7 +29,7 @@ app.get("/urls", (req, res) => {
 
 // Route for POST request of urls_new form
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
+  // console.log(req.body);  // Log the POST request body to the console
   const shortURL = generateRandomString(); // Generate random short URL for our new URL
   urlDatabase[shortURL] = req.body['longURL']; // Add new URL to the database
 
@@ -40,6 +40,12 @@ app.post("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+
+// Route for delete button
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL]; // Delete URL entry from database
+  res.redirect("/urls");
+})
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]; // Fetch short URL from route parameter, then access database to fetch long URL with short URL key
