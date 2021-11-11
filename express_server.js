@@ -39,6 +39,17 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// Route for log in endpoint
+app.get("/login", (req, res) => {
+  res.render("urls_login");
+});
+
+// Route for register endpoint
+app.get("/register", (req, res) => {
+  const templateVars = { user: users[req.cookies['user_id']] };
+  res.render("urls_register", templateVars);
+});
+
 // Route to list all the urls in database
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[req.cookies['user_id']] };
@@ -62,11 +73,6 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// Route for register endpoint
-app.get("/urls/register", (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']] };
-  res.render("urls_register", templateVars);
-})
 
 // Route for delete button
 app.post("/urls/:shortURL/delete", (req, res) => {
