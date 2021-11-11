@@ -8,7 +8,9 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
+// Add cookieparser middleware for use
 const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -25,7 +27,14 @@ app.get("/urls.json", (req, res) => {
 
 // Route to list all the urls in database
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+
+  /*
+  if (req.cookies["username"]) {
+    templateVars[username] = req.cookies["username"];
+  }
+  */
+
   res.render("urls_index", templateVars);
 });
 
@@ -71,10 +80,11 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-
+/*
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+*/
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
