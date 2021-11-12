@@ -1,3 +1,4 @@
+const { getUserByEmail } = require('./helpers');
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -154,19 +155,19 @@ app.post("/urls/:id", (req, res) => {
 
 // Login page
 app.post("/login", (req, res) => {
-  const id = checkEmail(req.body['email']);
+  const user = getUserByEmail(req.body['email'], users);
   // Check if email exists
-  if (id === undefined) {
+  if (user === undefined) {
     res.status(403);
     return res.send("Email does not exist!")
   }
   // Check if entered password is correct
-  if (!checkHashPassword(req.body['password'], id)) {
+  if (!checkHashPassword(req.body['password'], user)) {
     res.status(403);
     return res.send("Password is incorrect!");
   }
   
-  req.session.user_id = id;
+  req.session.user_id = user['id'];
   // console.log(req.session.user_id)
   // res.cookie('user_id', id); // Set cookie 'user_id' with entered value
   res.redirect('/urls');
@@ -186,9 +187,9 @@ app.post("/register", (req, res) => {
     return res.send('Invalid Email or password!');
   }
   // Check if email already exist
-  if (checkEmail(req.body['email']) !== undefined) {
+  if (getUserByEmail(req.body['email'], users) !== undefined) {
     res.status(400);
-    return res.send('Email is already used!');
+    return res.send('Email already exists!');
   }
   const randomID = generateRandomString();
   const hashPass = bcrypt.hashSync(req.body['password'], 10);
@@ -230,7 +231,7 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-function generateRandomString() {
+const generateRandomString = function() {
   let result = '';
   // A string of all possible alphabets and numbers to choose from for our random string
   const char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
@@ -242,30 +243,33 @@ function generateRandomString() {
   return result;
 };
 
-// Check if email exists within users database and returns the user object if found
-function checkEmail(email) {
+// Check if email exists within users database and returns the user id if found
+// RETIRED HELPER FUNCTION
+/*
+const checkEmail = function(email, database) {
   let result = undefined;
-  for (const id in users) {
-    if (users[id]['email'] === email) {
+  for (const id in database) {
+    if (database[id]['email'] === email) {
       result = id;
       return result;
     }
   }
   return result;
 };
+*/
 
 // Check if password entered is the same as hashed password
-function checkHashPassword(pass, id) {
-  return bcrypt.compareSync(pass, users[id]['password']);     // Compare hashed user entered password with stored password
+const checkHashPassword = function(pass, user) {
+  return bcrypt.compareSync(pass, user['password']);     // Compare hashed user entered password with stored password
 }
 
 // Helper function returns true if logged in
-function checkLogin(req) {
+const checkLogin = function(req) {
   return users[req.session.user_id];
 };
 
 // Return URLs given the user_id
-function urlsForUser(id) {
+const urlsForUser = function(id) {
   let result = Object.assign({}, urlDatabase);
   for (let url in result) {
     if (result[url]['userID'] !== id) {
