@@ -22,7 +22,7 @@ app.use(cookieSession({
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
-}))
+}));
 
 // Add bycrpt middleware for use
 const bcrypt = require('bcryptjs');
@@ -30,32 +30,32 @@ const bcrypt = require('bcryptjs');
 
 const urlDatabase = {
   b6UTxQ: {
-      longURL: "https://www.tsn.ca",
-      userID: "aJ48lW"
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW"
   },
   i3BoGr: {
-      longURL: "https://www.google.ca",
-      userID: "aJ48lW"
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW"
   },
   sgq3y6: {
-      longURL: "https://www.yahoo.ca",
-      userID: "abcdef"
+    longURL: "https://www.yahoo.ca",
+    userID: "abcdef"
   }
 };
 
 // Temporary users database
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
-}
+};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -135,7 +135,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
   delete urlDatabase[req.params.shortURL]; // Delete URL entry from database
   res.redirect("/urls");
-})
+});
 
 // Route for editing long url in urls_show
 app.post("/urls/:id", (req, res) => {
@@ -159,7 +159,7 @@ app.post("/login", (req, res) => {
   // Check if email exists
   if (user === undefined) {
     res.status(403);
-    return res.send("Email does not exist!")
+    return res.send("Email does not exist!");
   }
   // Check if entered password is correct
   if (!checkHashPassword(req.body['password'], user)) {
@@ -214,7 +214,7 @@ app.get("/urls/:shortURL", (req, res) => {
   // Check for user identification
   if (!checkLogin(req)) {
     res.status(401);
-    return res.send('Please Log In first!')
+    return res.send('Please Log In first!');
   }
 
   const validUrls = urlsForUser(checkLogin(req).id);
@@ -243,25 +243,10 @@ const generateRandomString = function() {
   return result;
 };
 
-// Check if email exists within users database and returns the user id if found
-// RETIRED HELPER FUNCTION
-/*
-const checkEmail = function(email, database) {
-  let result = undefined;
-  for (const id in database) {
-    if (database[id]['email'] === email) {
-      result = id;
-      return result;
-    }
-  }
-  return result;
-};
-*/
-
 // Check if password entered is the same as hashed password
 const checkHashPassword = function(pass, user) {
   return bcrypt.compareSync(pass, user['password']);     // Compare hashed user entered password with stored password
-}
+};
 
 // Helper function returns true if logged in
 const checkLogin = function(req) {
@@ -278,3 +263,18 @@ const urlsForUser = function(id) {
   }
   return result;
 };
+
+// Check if email exists within users database and returns the user id if found
+// RETIRED HELPER FUNCTION
+/*
+const checkEmail = function(email, database) {
+  let result = undefined;
+  for (const id in database) {
+    if (database[id]['email'] === email) {
+      result = id;
+      return result;
+    }
+  }
+  return result;
+};
+*/
