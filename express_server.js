@@ -9,10 +9,6 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-// Add cookieparser middleware for use
-// const cookieParser = require('cookie-parser');
-// const e = require("express");
-// app.use(cookieParser());
 
 // Add cookieSession middleware for use
 const cookieSession = require('cookie-session');
@@ -94,7 +90,6 @@ app.get("/urls", (req, res) => {
   } else {
     const userURL = urlsForUser(checkLogin(req, users).id, urlDatabase);
     templateVars['urls'] = userURL;
-    // console.log(templateVars);
     res.render("urls_index", templateVars);
   }
 });
@@ -107,7 +102,6 @@ app.post("/urls", (req, res) => {
   }
   const shortURL = generateRandomString(); // Generate random short URL for our new URL
   urlDatabase[shortURL] = { longURL: req.body['longURL'], userID: req.session.user_id }; // Add new URL to the database for specified user
-  // console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`); // Redirect to newly generated URL
 });
 
@@ -167,9 +161,7 @@ app.post("/login", (req, res) => {
     return res.send("Password is incorrect!");
   }
   
-  req.session.user_id = user['id'];
-  // console.log(req.session.user_id)
-  // res.cookie('user_id', id); // Set cookie 'user_id' with entered value
+  req.session.user_id = user['id']; // Set cookie 'user_id' with entered value
   res.redirect('/urls');
 });
 

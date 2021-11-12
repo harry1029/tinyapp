@@ -44,19 +44,4 @@ const urlsForUser = function(id, database) {
   return result;
 };
 
-// Check if email exists within users database and returns the user id if found
-// RETIRED HELPER FUNCTION
-/*
-const checkEmail = function(email, database) {
-  let result = undefined;
-  for (const id in database) {
-    if (database[id]['email'] === email) {
-      result = id;
-      return result;
-    }
-  }
-  return result;
-};
-*/
-
 module.exports = { getUserByEmail, generateRandomString, checkHashPassword, checkLogin, urlsForUser };
