@@ -28,6 +28,10 @@ const urlDatabase = {
   i3BoGr: {
       longURL: "https://www.google.ca",
       userID: "aJ48lW"
+  },
+  sgq3y6: {
+      longURL: "https://www.yahoo.ca",
+      userID: "abcdef"
   }
 };
 
@@ -111,12 +115,32 @@ app.get("/urls/new", (req, res) => {
 
 // Route for delete button
 app.post("/urls/:shortURL/delete", (req, res) => {
+  if (!checkLogin(req)) {
+    res.status(401);
+    return res.send('No authorization to DELETE!');
+  }
+
+  const validUrls = urlsForUser(checkLogin(req).id);
+  if (!validUrls[req.params.shortURL]) {
+    res.status(401);
+    return res.send('No authorization to DELETE!');
+  }
   delete urlDatabase[req.params.shortURL]; // Delete URL entry from database
   res.redirect("/urls");
 })
 
 // Route for editing long url in urls_show
 app.post("/urls/:id", (req, res) => {
+  if (!checkLogin(req)) {
+    res.status(401);
+    return res.send('No authorization to EDIT!');
+  }
+
+  const validUrls = urlsForUser(checkLogin(req).id);
+  if (!validUrls[req.params.shortURL]) {
+    res.status(401);
+    return res.send('No authorization to EDIT!');
+  }
   urlDatabase[req.params.id]['longURL'] = req.body['longURL'];
   res.redirect("."); // Redirects back to main page urls_index
 });
