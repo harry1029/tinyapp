@@ -1,4 +1,4 @@
-const { getUserByEmail } = require('./helpers');
+const { getUserByEmail, generateRandomString, checkHashPassword, checkLogin, urlsForUser } = require('./helpers');
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -67,7 +67,7 @@ app.get("/urls.json", (req, res) => {
 
 // Route for log in endpoint
 app.get("/login", (req, res) => {
-  if (!checkLogin(req)) {
+  if (!checkLogin(req, users)) {
     const templateVars = { user: users[req.session.user_id] };
     res.render("urls_login", templateVars);
   } else {
@@ -77,7 +77,7 @@ app.get("/login", (req, res) => {
 
 // Route for register endpoint
 app.get("/register", (req, res) => {
-  if (!checkLogin(req)) {
+  if (!checkLogin(req, users)) {
     const templateVars = { user: users[req.session.user_id] };
     res.render("urls_register", templateVars);
   } else {
@@ -89,10 +89,10 @@ app.get("/register", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { user: users[req.session.user_id] };
   // Check if user is logged in
-  if (!checkLogin(req)) {
+  if (!checkLogin(req, users)) {
     res.render("urls_index_noId", templateVars);
   } else {
-    const userURL = urlsForUser(checkLogin(req).id);
+    const userURL = urlsForUser(checkLogin(req, users).id, urlDatabase);
     templateVars['urls'] = userURL;
     // console.log(templateVars);
     res.render("urls_index", templateVars);
@@ -101,7 +101,7 @@ app.get("/urls", (req, res) => {
 
 // Route for POST request of urls_new form
 app.post("/urls", (req, res) => {
-  if (!checkLogin(req)) {
+  if (!checkLogin(req, users)) {
     res.status(401);
     return res.send("Access denied!");
   }
@@ -113,7 +113,7 @@ app.post("/urls", (req, res) => {
 
 // Route for urls_new.ejs *Must be placed before any /:id routes
 app.get("/urls/new", (req, res) => {
-  if (!checkLogin(req)) {
+  if (!checkLogin(req, users)) {
     res.redirect("/login");
   } else {
     const templateVars = { user: users[req.session.user_id] };
@@ -123,12 +123,12 @@ app.get("/urls/new", (req, res) => {
 
 // Route for delete button
 app.post("/urls/:shortURL/delete", (req, res) => {
-  if (!checkLogin(req)) {
+  if (!checkLogin(req, users)) {
     res.status(401);
     return res.send('No authorization to DELETE!');
   }
 
-  const validUrls = urlsForUser(checkLogin(req).id);
+  const validUrls = urlsForUser(checkLogin(req, users).id, urlDatabase);
   if (!validUrls[req.params.shortURL]) {
     res.status(401);
     return res.send('No authorization to DELETE!');
@@ -139,12 +139,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // Route for editing long url in urls_show
 app.post("/urls/:id", (req, res) => {
-  if (!checkLogin(req)) {
+  if (!checkLogin(req, users)) {
     res.status(401);
     return res.send('Not logged in! No authorization to EDIT!');
   }
 
-  const validUrls = urlsForUser(checkLogin(req).id);
+  const validUrls = urlsForUser(checkLogin(req, users).id, urlDatabase);
   if (!validUrls[req.params.id]) {
     res.status(401);
     return res.send('No authorization to EDIT!');
@@ -212,12 +212,12 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 
   // Check for user identification
-  if (!checkLogin(req)) {
+  if (!checkLogin(req, users)) {
     res.status(401);
     return res.send('Please Log In first!');
   }
 
-  const validUrls = urlsForUser(checkLogin(req).id);
+  const validUrls = urlsForUser(checkLogin(req, users).id, urlDatabase);
   if (!validUrls[req.params.shortURL]) {
     res.status(401);
     return res.send('No authorization for this URL!');
@@ -230,51 +230,3 @@ app.get("/urls/:shortURL", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-const generateRandomString = function() {
-  let result = '';
-  // A string of all possible alphabets and numbers to choose from for our random string
-  const char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-  for (let i = 0; i < 6; i++) {
-    // Generate a random index to pick a string from our list
-    const index = Math.floor(Math.random() * char.length);
-    result += char[index];
-  }
-  return result;
-};
-
-// Check if password entered is the same as hashed password
-const checkHashPassword = function(pass, user) {
-  return bcrypt.compareSync(pass, user['password']);     // Compare hashed user entered password with stored password
-};
-
-// Helper function returns true if logged in
-const checkLogin = function(req) {
-  return users[req.session.user_id];
-};
-
-// Return URLs given the user_id
-const urlsForUser = function(id) {
-  let result = Object.assign({}, urlDatabase);
-  for (let url in result) {
-    if (result[url]['userID'] !== id) {
-      delete result[url];
-    }
-  }
-  return result;
-};
-
-// Check if email exists within users database and returns the user id if found
-// RETIRED HELPER FUNCTION
-/*
-const checkEmail = function(email, database) {
-  let result = undefined;
-  for (const id in database) {
-    if (database[id]['email'] === email) {
-      result = id;
-      return result;
-    }
-  }
-  return result;
-};
-*/
