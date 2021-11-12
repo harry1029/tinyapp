@@ -137,11 +137,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   if (!checkLogin(req)) {
     res.status(401);
-    return res.send('No authorization to EDIT!');
+    return res.send('Not logged in! No authorization to EDIT!');
   }
 
   const validUrls = urlsForUser(checkLogin(req).id);
-  if (!validUrls[req.params.shortURL]) {
+  if (!validUrls[req.params.id]) {
     res.status(401);
     return res.send('No authorization to EDIT!');
   }
@@ -151,14 +151,16 @@ app.post("/urls/:id", (req, res) => {
 
 // Login page
 app.post("/login", (req, res) => {
+  const id = checkEmail(req.body['email']);
   // Check if email exists
-  if (checkEmail(req.body['email']) === undefined) {
+  if (id === undefined) {
     res.status(403);
     return res.send("Email does not exist!")
   }
-  const id = checkEmail(req.body['email'], req.body['password'])
-  // Check if password is correct
-  if (id === undefined) {
+  // Check if entered password is correct
+  console.log("ID: " + id)
+  console.log(typeof id);
+  if (!checkHashPassword(req.body['password'], id)) {
     res.status(403);
     return res.send("Password is incorrect!");
   }
@@ -220,11 +222,6 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-/*
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-*/
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
@@ -242,24 +239,22 @@ function generateRandomString() {
   return result;
 };
 
-function checkEmail(email, password) {
+// Check if email exists within users database and returns the user object if found
+function checkEmail(email) {
   let result = undefined;
-  if (password === undefined) {
-    for (const id in users) {
-      if (users[id]['email'] === email) {
-        return result = id;
-      }
-    }
-  } else {
-    for (const id in users) {
-      if (users[id]['email'] === email && users[id]['password'] === password) {
-        return result = id;
-      }
+  for (const id in users) {
+    if (users[id]['email'] === email) {
+      result = id;
+      return result;
     }
   }
-
   return result;
 };
+
+// Check if password entered is the same as hashed password
+function checkHashPassword(pass, id) {
+  return bcrypt.compareSync(pass, users[id]['password']);     // Compare hashed user entered password with stored password
+}
 
 // Helper function returns true if logged in
 function checkLogin(req) {
