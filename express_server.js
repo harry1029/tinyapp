@@ -13,12 +13,16 @@ const cookieParser = require('cookie-parser');
 const e = require("express");
 app.use(cookieParser());
 
-/*
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
-*/
+// Add bycrpt middleware for use
+const bcrypt = require('bcryptjs');
+
+// const password = "purple-monkey-dinosaur"; // found in the req.params object
+// const hashedPassword = bcrypt.hashSync(password, 10);
+// console.log("password: " + password);
+// console.log("hashedPassword: " + hashedPassword);
+
+// console.log(bcrypt.compareSync("purple-monkey-dinosaur", hashedPassword));
+// console.log(bcrypt.compareSync("pink-donkey-minotaur", hashedPassword));
 
 const urlDatabase = {
   b6UTxQ: {
@@ -182,7 +186,8 @@ app.post("/register", (req, res) => {
     res.send('Email is already used!');
   }
   const randomID = generateRandomString();
-  users[randomID] = { id: randomID, email: req.body['email'], password: req.body['password'] }; // Add new user to object
+  const hashPass = bcrypt.hashSync(req.body['password'], 10);
+  users[randomID] = { id: randomID, email: req.body['email'], password: hashPass }; // Add new user to object
   res.cookie('user_id', randomID);
   res.redirect('/urls');
 });
