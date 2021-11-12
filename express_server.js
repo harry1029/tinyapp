@@ -93,7 +93,7 @@ app.get("/urls", (req, res) => {
   } else {
     const userURL = urlsForUser(checkLogin(req).id);
     templateVars['urls'] = userURL;
-    console.log(templateVars);
+    // console.log(templateVars);
     res.render("urls_index", templateVars);
   }
 });
@@ -106,7 +106,7 @@ app.post("/urls", (req, res) => {
   }
   const shortURL = generateRandomString(); // Generate random short URL for our new URL
   urlDatabase[shortURL] = { longURL: req.body['longURL'], userID: req.session.user_id }; // Add new URL to the database for specified user
-  console.log(urlDatabase);
+  // console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`); // Redirect to newly generated URL
 });
 
@@ -161,15 +161,13 @@ app.post("/login", (req, res) => {
     return res.send("Email does not exist!")
   }
   // Check if entered password is correct
-  console.log("ID: " + id)
-  console.log(typeof id);
   if (!checkHashPassword(req.body['password'], id)) {
     res.status(403);
     return res.send("Password is incorrect!");
   }
   
   req.session.user_id = id;
-  console.log(req.session.user_id)
+  // console.log(req.session.user_id)
   // res.cookie('user_id', id); // Set cookie 'user_id' with entered value
   res.redirect('/urls');
 });
