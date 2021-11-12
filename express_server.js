@@ -160,7 +160,6 @@ app.post("/register", (req, res) => {
   const randomID = generateRandomString();
   users[randomID] = { id: randomID, email: req.body['email'], password: req.body['password'] }; // Add new user to object
   res.cookie('user_id', randomID);
-  console.log(users);
   res.redirect('/urls');
 });
 
@@ -175,6 +174,18 @@ app.get("/urls/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
     res.status(400);
     return res.send('Invalid URL!');
+  }
+
+  // Check for user identification
+  if (!checkLogin(req)) {
+    res.status(401);
+    return res.send('Please Log In first!')
+  }
+
+  const validUrls = urlsForUser(checkLogin(req).id);
+  if (!validUrls[req.params.shortURL]) {
+    res.status(401);
+    return res.send('No authorization for this URL!');
   }
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user: users[req.cookies['user_id']] };
   res.render("urls_show", templateVars);
@@ -230,7 +241,6 @@ function checkLogin(req) {
 function urlsForUser(id) {
   let result = Object.assign({}, urlDatabase);
   for (let url in result) {
-    console.log(url)
     if (result[url]['userID'] !== id) {
       delete result[url];
     }
