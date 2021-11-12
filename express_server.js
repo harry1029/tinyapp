@@ -9,20 +9,23 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
 // Add cookieparser middleware for use
-const cookieParser = require('cookie-parser');
-const e = require("express");
-app.use(cookieParser());
+// const cookieParser = require('cookie-parser');
+// const e = require("express");
+// app.use(cookieParser());
+
+// Add cookieSession middleware for use
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: ['abcdefg'],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 // Add bycrpt middleware for use
 const bcrypt = require('bcryptjs');
 
-// const password = "purple-monkey-dinosaur"; // found in the req.params object
-// const hashedPassword = bcrypt.hashSync(password, 10);
-// console.log("password: " + password);
-// console.log("hashedPassword: " + hashedPassword);
-
-// console.log(bcrypt.compareSync("purple-monkey-dinosaur", hashedPassword));
-// console.log(bcrypt.compareSync("pink-donkey-minotaur", hashedPassword));
 
 const urlDatabase = {
   b6UTxQ: {
@@ -64,7 +67,7 @@ app.get("/urls.json", (req, res) => {
 // Route for log in endpoint
 app.get("/login", (req, res) => {
   if (!checkLogin(req)) {
-    const templateVars = { user: users[req.cookies['user_id']] };
+    const templateVars = { user: users[req.session.user_id] };
     res.render("urls_login", templateVars);
   } else {
     res.redirect('/urls');        // Redirect to /urls if user is already logged in
@@ -74,7 +77,7 @@ app.get("/login", (req, res) => {
 // Route for register endpoint
 app.get("/register", (req, res) => {
   if (!checkLogin(req)) {
-    const templateVars = { user: users[req.cookies['user_id']] };
+    const templateVars = { user: users[req.session.user_id] };
     res.render("urls_register", templateVars);
   } else {
     res.redirect('/urls');        // Redirect to /urls if user is already logged in
@@ -83,7 +86,7 @@ app.get("/register", (req, res) => {
 
 // Route to list all the urls in database
 app.get("/urls", (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']] };
+  const templateVars = { user: users[req.session.user_id] };
   // Check if user is logged in
   if (!checkLogin(req)) {
     res.render("urls_index_noId", templateVars);
@@ -102,7 +105,7 @@ app.post("/urls", (req, res) => {
     return res.send("Access denied!");
   }
   const shortURL = generateRandomString(); // Generate random short URL for our new URL
-  urlDatabase[shortURL] = { longURL: req.body['longURL'], userID: req.cookies['user_id'] }; // Add new URL to the database for specified user
+  urlDatabase[shortURL] = { longURL: req.body['longURL'], userID: req.session.user_id }; // Add new URL to the database for specified user
   console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`); // Redirect to newly generated URL
 });
@@ -112,7 +115,7 @@ app.get("/urls/new", (req, res) => {
   if (!checkLogin(req)) {
     res.redirect("/login");
   } else {
-    const templateVars = { user: users[req.cookies['user_id']] };
+    const templateVars = { user: users[req.session.user_id] };
     res.render("urls_new", templateVars);
   }
 });
@@ -165,13 +168,15 @@ app.post("/login", (req, res) => {
     return res.send("Password is incorrect!");
   }
   
-  res.cookie('user_id', id); // Set cookie 'user_id' with entered value
+  req.session.user_id = id;
+  console.log(req.session.user_id)
+  // res.cookie('user_id', id); // Set cookie 'user_id' with entered value
   res.redirect('/urls');
 });
 
 // Logout button
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id'); // Clears user_id cookie
+  req.session = null; // Clears user_id cookie
   res.redirect('/urls');
 });
 
@@ -180,17 +185,17 @@ app.post("/register", (req, res) => {
   // Check if empty string is passed
   if (req.body['email'] === '' || !req.body['password'] === '') {
     res.status(400);
-    res.send('Invalid Email or password!');
+    return res.send('Invalid Email or password!');
   }
   // Check if email already exist
   if (checkEmail(req.body['email']) !== undefined) {
     res.status(400);
-    res.send('Email is already used!');
+    return res.send('Email is already used!');
   }
   const randomID = generateRandomString();
   const hashPass = bcrypt.hashSync(req.body['password'], 10);
   users[randomID] = { id: randomID, email: req.body['email'], password: hashPass }; // Add new user to object
-  res.cookie('user_id', randomID);
+  req.session.user_id = randomID;
   res.redirect('/urls');
 });
 
@@ -218,7 +223,7 @@ app.get("/urls/:shortURL", (req, res) => {
     res.status(401);
     return res.send('No authorization for this URL!');
   }
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user: users[req.cookies['user_id']] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user: users[req.session.user_id] };
   res.render("urls_show", templateVars);
 });
 
@@ -258,7 +263,7 @@ function checkHashPassword(pass, id) {
 
 // Helper function returns true if logged in
 function checkLogin(req) {
-  return users[req.cookies['user_id']];
+  return users[req.session.user_id];
 };
 
 // Return URLs given the user_id
