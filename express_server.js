@@ -54,7 +54,12 @@ const users = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (!checkLogin(req, users)) {
+    res.redirect('/login');
+    return;
+  }
+
+  res.redirect('/urls');
 });
 
 app.get("/urls.json", (req, res) => {
