@@ -174,7 +174,7 @@ app.post("/logout", (req, res) => {
 // Register button adds new user object
 app.post("/register", (req, res) => {
   // Check if empty string is passed
-  if (req.body['email'] === '' || !req.body['password'] === '') {
+  if (req.body['email'] === '' || req.body['password'] === '') {
     res.status(400);
     return res.send('Invalid Email or password!');
   }
